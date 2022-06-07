@@ -1,3 +1,12 @@
+**** DISCLAIMER ****
+This project was created for a very simple case study. It should NEVER be used in real contexts, since it is missing a number of important features:
+- No HTTPS
+- No input validation
+- Authentications checks are limited
+- and many others!
+
+
+
 Il progetto è una piccola implementazione di un servizio REST.
 
 L'autenticazione è gestita tramite Firebase e permette di:
