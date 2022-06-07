@@ -1,0 +1,14 @@
+{
+  "collections": [
+    {
+      "name": "notes",
+      "read": ["auth"],
+      "write": ["auth"]
+    },
+    {
+      "name": "open",
+      "read": ["public"],
+      "write": ["no"]
+    }
+  ]
+}

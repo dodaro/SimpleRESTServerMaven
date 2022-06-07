@@ -1,0 +1,88 @@
+Il progetto è una piccola implementazione di un servizio REST.
+
+L'autenticazione è gestita tramite Firebase e permette di:
+    - autenticarsi con email/password;
+    - verificare la mail;
+    - cambiare email;
+    - cambiare password;
+    - inviare un link reset password.
+
+La persistenza è gestita tramite il supporto json di SQLite. Il database viene costruito automaticamente all'avvio del server:
+    Il database è costituito da due tabelle predefinite:
+            - authentication, che contiene come campi:
+                id (identificativo dell'utente),
+                email (email dell'utente),
+                token (serve per identificare l'utente),
+                refreshToken (serve per rinnovare il token alla scadenza),
+                expiresIn (indica la validità del token),
+                role (ruolo dell'utente, di default è "user". Manualmente, nel database si può cambiare il ruolo degli utenti. Ad esempio, si può creare un utente come admin.
+                      L'admin è un ruolo speciale che può cambiare il ruolo agli altri utenti e ha visibilità completa su tutto.)
+                verified (indica se la mail dell'utente è stata verificata. L'utente può effettuare le modifiche solo dopo che la sua email è stata validata)
+            - files, che contiene come campi:
+                id (identificativo del file),
+                userId (identificativo dell'utente che ha caricato il file),
+                fileContent (il contenuto del file),
+                fileFormat (il formato del file).
+        Le altre tabelle sono create in base alle collezioni specificate nel file config.json.
+            Ogni tabella è strutturata con tre campi:
+                id (identificativo dell'utente),
+                element_id (identificativo autogenerato dell'elemento),
+                json (contenuto della collezione)
+                La combinazione id ed element_id è univoca all'interno della tabella.
+            Per ognuna di queste tabelle il server mette a disposizione 4 operazioni:
+                - "add", aggiunge una entry all'interno della tabella
+                - "get", restituisce tutte le entry di un utente all'interno della tabella
+                - "update", aggiorna una entry all'interno della tabella
+                - "remove", rimuove una entry all'interno della tabella
+
+Procedimenti da fare:
+- creare un nuovo progetto su firebase
+- cliccare su authentication e poi inizia
+- selezionare come metodo di autenticazione email/password
+- nel tab template potete cambiare le email per la verifica della email, il ripristino della password, ecc.
+- trovare la API key all'interno delle impostazioni del progetto (pulsante con rotella in alto a sinistra), tab Generali
+- scaricare la API key e inserirla all'interno del costruttore della classe FirebaseAuthentication (package persistence)
+- modificare il file config.json per inserire le collezioni all'interno del database.
+
+Il file config.json è il seguente:
+    {
+      "collections": [
+        {
+          "name": "users",
+          "read": ["auth"],
+          "write": ["auth"]
+        },
+        {
+          "name": "other",
+          "read": ["public"],
+          "write": ["no"]
+        }
+        {
+          "name": "othertwo",
+          "read": ["user", "moderators"],
+          "write": ["moderators"]
+        }
+      ]
+    }
+
+Spiegazione:
+    {
+      "collections": [
+        {
+          "name": "users", //name: specifica il nome della collezione (in questo caso "users").
+          "read": ["auth"], //Qui si specifica in un array di stringhe chi ha diritto di lettura su questa tabella. La stringa "auth" significa che ogni utente ha diritto di lettura solo per le righe il cui id è uguale all'id dell'utente.
+          "write": ["auth"] //Come sopra ma per il diritto di scrittura.
+        },
+        {
+          "name": "other", //collezione di nome "other"
+          "read": ["public"], //La stringa "public" specifica che qualunque utente loggato può leggere il contenuto della collezione (qualunque riga). Public si può specificare solo per le operazioni read.
+          "write": ["no"] //In questo caso solo gli utenti con ruolo admin possono scrivere nella collezione
+        }
+        {
+          "name": "othertwo", //collezione di nome "othertwo"
+          "read": ["user", "moderators"], //Possono leggere in questa collezione: admin, user e moderators
+          "write": ["moderators"] //Possono scrivere in questa collezione: admin e moderators
+        }
+      ]
+    }
+
